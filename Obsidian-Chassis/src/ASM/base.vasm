@@ -1,0 +1,13 @@
+%include "vm.inc"
+
+global _vm_start
+global _vm_size
+
+section .text
+_vm_start:
+
+; Emulated instructions in here
+
+_vm_size:    dd  $ - _vm_start
+
+

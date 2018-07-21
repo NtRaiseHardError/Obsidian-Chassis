@@ -1,0 +1,45 @@
+%include "vm.inc"
+
+global _vm_start
+global _vm_size
+
+section .text
+    push ebp
+    mov ebp, esp
+    and esp, -16
+    db 0xFF
+    db 0x25
+
+_vm_start:
+; Set the RC4-encrypted flag into memory.
+    vm_stordi 20, 0xC7185FD8
+    vm_stordi 24, 0x3FB222C9
+    vm_stordi 28, 0x12872D92
+    vm_stordi 32, 0x11242CEA
+    vm_storwi 36, 0x9327
+
+; Set the first 4 RC4 key bytes.
+    vm_stordi 40, 0xC37AB29E
+
+; Infinite loop.
+    vm_movi vm_reg10, _loop - _vm_start             ; Set the jump location into register 10.
+_loop:
+    vm_jmp vm_reg10                                 ; Infinite loop!
+
+; Set the last 4 RC4 key bytes.
+    vm_stordi 44, 0x8AD56C11
+
+; RC4 decrypt the flag.
+    vm_rc4k 40, 8
+    vm_rc4c 20, 0, 18, 40
+
+; Print the flag.
+    vm_storbi 18, 0x0A                              ; New line.
+    vm_conout 0
+    vm_hlt
+
+_vm_size:    dd  $ - _vm_start
+
+    mov esp, ebp
+    pop ebp
+    ret

@@ -1,0 +1,28 @@
+%include "vm.inc"                       ; Include VM macro opcodes.
+
+global __vm_start                       ; Defines the start of the VM emulation.
+global __vm_size
+
+section .text                           ; Data lives in the .text section to allow
+                                        ; for native code execution using passthru.
+__vm_start:
+    vm_movi vm_reg1, 6
+    vm_call _fact - __vm_start
+    vm_hlt
+
+_fact:
+    vm_test vm_reg1, vm_reg1
+    vm_jei _ret - __vm_start
+    vm_jmpi _next - __vm_start
+_ret:
+    vm_movi vm_reg0, 1
+    vm_ret
+
+_next:
+    vm_push vm_reg1
+    vm_dec vm_reg1
+    vm_call _fact - __vm_start
+    vm_pop vm_reg2
+    vm_mul vm_reg0, vm_reg2
+    vm_ret
+__vm_size:   dd $ - __vm_start
